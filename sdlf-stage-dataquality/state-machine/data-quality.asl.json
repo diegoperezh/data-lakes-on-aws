@@ -1,0 +1,213 @@
+{
+  "Comment": "Simple Glue Data Quality transform",
+  "StartAt": "Try",
+  "States": {
+    "Try": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Initial Check",
+          "States": {
+            "Initial Check": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "OutputPath": "$.Payload",
+              "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "${lStep1}:$LATEST"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Data Quality Run"
+            },
+            "Data Quality Run": {
+              "Type": "Map",
+              "ResultPath": null,
+              "ItemsPath": "$.dataquality",
+              "ItemProcessor": {
+                "ProcessorConfig": {
+                  "Mode": "INLINE"
+                },
+                "StartAt": "StartDataQualityRuleRecommendationRun",
+                "States": {
+                  "StartDataQualityRuleRecommendationRun": {
+                    "Type": "Task",
+                    "ResultPath": "$.body.glue.recommendation_run_id",
+                    "Next": "Wait Recommendation Run X Seconds",
+                    "Parameters": {
+                      "DataSource": {
+                        "GlueTable": {
+                          "DatabaseName.$": "$.body.glue.DatabaseName",
+                          "TableName.$": "$.body.glue.TableName"
+                        }
+                      },
+                      "CreatedRulesetName.$": "States.Format('{}_{}', $.body.glue.DatabaseName, $.body.glue.TableName)",
+                      "Role": "${dataQualityRole}",
+                      "NumberOfWorkers.$": "$.body.glue.NumberOfWorkers"
+                    },
+                    "Catch": [ {
+                      "Comment": "Handle ruleset already existing",
+                      "ErrorEquals": [ "Glue.InvalidInputException" ],
+                      "ResultPath": null,
+                      "Next": "StartDataQualityRulesetEvaluationRun"
+                    } ],
+                    "Resource": "arn:aws:states:::aws-sdk:glue:startDataQualityRuleRecommendationRun"
+                  },
+                  "Wait Recommendation Run X Seconds": {
+                    "Type": "Wait",
+                    "SecondsPath": "$.body.glue.wait_time",
+                    "Next": "GetDataQualityRuleRecommendationRun"
+                  },
+                  "GetDataQualityRuleRecommendationRun": {
+                    "Type": "Task",
+                    "ResultPath": "$.body.glue.recommendation_run_details",
+                    "Next": "Recommendation Job Complete?",
+                    "Parameters": {
+                      "RunId.$": "$.body.glue.recommendation_run_id.RunId"
+                    },
+                    "Resource": "arn:aws:states:::aws-sdk:glue:getDataQualityRuleRecommendationRun"
+                  },
+                  "Recommendation Job Complete?": {
+                    "Type": "Choice",
+                    "Choices": [
+                      {
+                        "Variable": "$.body.glue.recommendation_run_details.Status",
+                        "StringEquals": "FAILED",
+                        "Next": "Recommendation Job Failed"
+                      },
+                      {
+                        "Variable": "$.body.glue.recommendation_run_details.Status",
+                        "StringEquals": "SUCCEEDED",
+                        "Next": "StartDataQualityRulesetEvaluationRun"
+                      }
+                    ],
+                    "Default": "Wait Recommendation Run X Seconds"
+                  },
+                  "Recommendation Job Failed": {
+                    "Type": "Fail"
+                  },
+                  "StartDataQualityRulesetEvaluationRun": {
+                    "Type": "Task",
+                    "ResultPath": "$.body.glue.evaluation_run_id",
+                    "Next": "Wait Evaluation Run X Seconds",
+                    "Parameters": {
+                      "DataSource": {
+                        "GlueTable": {
+                          "DatabaseName.$": "$.body.glue.DatabaseName",
+                          "TableName.$": "$.body.glue.TableName"
+                        }
+                      },
+                      "Role": "${dataQualityRole}",
+                      "NumberOfWorkers.$": "$.body.glue.NumberOfWorkers",
+                      "RulesetNames.$": "States.Array(States.Format('{}_{}', $.body.glue.DatabaseName, $.body.glue.TableName))",
+                      "AdditionalRunOptions": {
+                        "CloudWatchMetricsEnabled": "true",
+                        "ResultsS3Prefix": "${s3DataQualityResults}"
+                      }
+                    },
+                    "Resource": "arn:aws:states:::aws-sdk:glue:startDataQualityRulesetEvaluationRun"
+                  },
+                  "Wait Evaluation Run X Seconds": {
+                    "Type": "Wait",
+                    "SecondsPath": "$.body.glue.wait_time",
+                    "Next": "GetDataQualityRulesetEvaluationRun"
+                  },
+                  "GetDataQualityRulesetEvaluationRun": {
+                    "Type": "Task",
+                    "ResultPath": "$.body.glue.evaluation_run_details",
+                    "Next": "Evaluation Job Complete?",
+                    "Parameters": {
+                      "RunId.$": "$.body.glue.evaluation_run_id.RunId"
+                    },
+                    "Resource": "arn:aws:states:::aws-sdk:glue:getDataQualityRulesetEvaluationRun"
+                  },
+                  "Evaluation Job Complete?": {
+                    "Type": "Choice",
+                    "Choices": [
+                      {
+                        "Variable": "$.body.glue.evaluation_run_details.Status",
+                        "StringEquals": "FAILED",
+                        "Next": "Ruleset Evaluation Job Failed"
+                      },
+                      {
+                        "Variable": "$.body.glue.evaluation_run_details.Status",
+                        "StringEquals": "SUCCEEDED",
+                        "Next": "Ruleset Evaluation Job Success"
+                      }
+                    ],
+                    "Default": "Wait Evaluation Run X Seconds"
+                  },
+                  "Ruleset Evaluation Job Success": {
+                    "Type": "Pass",
+                    "End": true
+                  },
+                  "Ruleset Evaluation Job Failed": {
+                    "Type": "Fail"
+                  }
+                }
+              },
+              "Next": "Choice"
+            },
+            "Choice": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.dataquality[0].body.glue.crawler_name",
+                  "IsPresent": true,
+                  "Next": "Run Glue Crawler"
+                }
+              ],
+              "Default": "Success"
+            },
+            "Run Glue Crawler": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+              "ResultPath": null,
+              "Parameters": {
+                "Name.$": "$.dataquality[0].body.glue.crawler_name"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Glue.CrawlerRunningException"
+                  ],
+                  "IntervalSeconds": 30,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            },
+            "Success": {
+              "Type": "Succeed"
+            }
+          }
+        }
+      ],
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": null,
+          "Next": "Fail"
+        }
+      ]
+    },
+    "Fail": {
+      "Type": "Fail"
+    }
+  }
+}

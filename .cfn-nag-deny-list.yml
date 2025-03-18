@@ -1,0 +1,7 @@
+RulesToSuppress:
+- id: W76
+  reason: too experimental. https://stelligent.com/2020/03/27/thought-experiment-proposed-complexity-metric-for-iam-policy-documents/
+- id: W89
+  reason: SDLF does not support running in VPC by default
+- id: W92
+  reason: ReservedConcurrentExecutions

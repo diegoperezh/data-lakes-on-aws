@@ -1,0 +1,339 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Multi-environment CICD team repos resources in shared DevOps account
+
+Parameters:
+  pKMSKey:
+    Description: The KMS key used by CodeBuild and CodePipeline
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /SDLF/KMS/CICDKeyId
+  pGitPlatform:
+    Description: Platform used to host git repositories
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /SDLF/Misc/GitPlatform
+  pCicdRepository:
+    Type: String
+    Default: sdlf-cicd
+  pFoundationsRepository:
+    Type: String
+    Default: sdlf-foundations
+  pTeamRepository:
+    Type: String
+    Default: sdlf-team
+  pPipelineRepository:
+    Type: String
+    Default: sdlf-pipeline
+  pDatasetRepository:
+    Type: String
+    Default: sdlf-dataset
+  pStageARepository:
+    Type: String
+    Default: sdlf-stageA
+  pStageLambdaRepository:
+    Type: String
+    Default: sdlf-stage-lambda
+  pStageBRepository:
+    Type: String
+    Default: sdlf-stageB
+  pStageGlueRepository:
+    Type: String
+    Default: sdlf-stage-glue
+  pDatalakeLibraryRepository:
+    Type: String
+    Default: sdlf-datalakeLibrary
+  pUtilsRepository:
+    Type: String
+    Default: sdlf-utils
+  pMainRepository:
+    Type: String
+    Default: sdlf-main
+  pMonitoringRepository:
+    Type: String
+    Default: sdlf-monitoring
+  pEnableMonitoring:
+    Description: Build sdlf-monitoring cloudformation module as part of domain pipelines
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /SDLF/Monitoring/Enabled
+
+Conditions:
+  EnableMonitoring: !Equals [!Ref pEnableMonitoring, true]
+
+Resources:
+  rCicdGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pCicdRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rFoundationsGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pFoundationsRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rTeamGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pTeamRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rPipelineGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pPipelineRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rDatasetGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pDatasetRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rStageAGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pStageARepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rStageLambdaGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pStageLambdaRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rStageBGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pStageBRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rStageGlueGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pStageGlueRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rDatalakeLibraryGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pDatalakeLibraryRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rMainGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pMainRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rMonitoringGitHub:
+    Type: GitHub::Repositories::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - E3001
+    Condition: EnableMonitoring
+    Properties:
+      Org: !Sub "{{resolve:ssm:/SDLF/${pGitPlatform}/Group}}"
+      Name: !Ref pMonitoringRepository
+      Private: true
+      Visibility: private
+      Archived: false
+
+  rCicdGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/CicdGitHub
+      Type: String
+      Value: !Ref pCicdRepository # !GetAtt rCicdGitHub.Name
+      Description: Name of the Cicd repository
+
+  rFoundationsGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/FoundationsGitHub
+      Type: String
+      Value: !Ref pFoundationsRepository # !GetAtt rFoundationsGitHub.Name
+      Description: Name of the Foundations repository
+
+  rTeamGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/TeamGitHub
+      Type: String
+      Value: !Ref pTeamRepository # !GetAtt rTeamGitHub.Name
+      Description: Name of the Team repository
+
+  rPipelineGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/PipelineGitHub
+      Type: String
+      Value: !Ref pPipelineRepository # !GetAtt rPipelineGitHub.Name
+      Description: Name of the Pipeline repository
+
+  rDatasetGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/DatasetGitHub
+      Type: String
+      Value: !Ref pDatasetRepository # !GetAtt rDatasetGitHub.Name
+      Description: Name of the Dataset repository
+
+  rStageAGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/StageAGitHub
+      Type: String
+      Value: !Ref pStageARepository # !GetAtt rStageAGitHub.Name
+      Description: Name of the StageA repository
+
+  rStageLambdaGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/StageLambdaGitHub
+      Type: String
+      Value: !Ref pStageLambdaRepository # !GetAtt rStageLambdaGitHub.Name
+      Description: Name of the Stage-Lambda repository
+
+  rStageBGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/StageBGitHub
+      Type: String
+      Value: !Ref pStageBRepository # !GetAtt rStageBGitHub.Name
+      Description: Name of the StageB repository
+
+  rStageGlueGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/StageGlueGitHub
+      Type: String
+      Value: !Ref pStageGlueRepository # !GetAtt rStageGlueGitHub.Name
+      Description: Name of the Stage-Glue repository
+
+  rDatalakeLibraryGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/DatalakeLibraryGitHub
+      Type: String
+      Value: !Ref pDatalakeLibraryRepository # !GetAtt rDatalakeLibraryGitHub.Name
+      Description: Name of the DatalakeLibrary repository
+
+  rUtilsGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/UtilsGitHub
+      Type: String
+      Value: !Ref pUtilsRepository
+      Description: Name of the Utils repository
+
+  rMainGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/GitHub/MainGitHub
+      Type: String
+      Value: !Ref pMainRepository # !GetAtt rMainGitHub.Name
+      Description: Name of the main repository
+
+  rMonitoringGitHubSsm:
+    Type: AWS::SSM::Parameter
+    Condition: EnableMonitoring
+    Properties:
+      Name: /SDLF/GitHub/MonitoringGitHub
+      Type: String
+      Value: !Ref pMonitoringRepository # !GetAtt rMonitoringGitHub.Name
+      Description: Name of the monitoring repository
+
+Outputs:
+  # workaround {{resolve:ssm:}} not returning an array that can be used directly in VpcConfig blocks
+  oKmsKey:
+    Description: CICD KMS Key
+    Value: !Ref pKMSKey

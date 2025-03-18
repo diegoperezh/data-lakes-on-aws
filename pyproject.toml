@@ -1,0 +1,30 @@
+[tool.ruff]
+extend-exclude = ["sdlf-cicd/sam-translate.py"]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I", "PL", "W"]
+ignore = ["PLR0912", "PLR0913", "PLR0915"]
+fixable = ["I001", "W291"]
+
+[tool.pylint.main]
+py-version = "3.12"
+ignore-paths = ["^/sdlf-cicd/sam-translate.py"]
+jobs = 0
+
+[tool.pylint.format]
+max-line-length = 120
+max-module-lines = 1500
+
+[tool.pylint.logging]
+# The type of string formatting that logging methods do. `old` means using %
+# formatting, `new` is for `{}` formatting.
+logging-format-style = "new"
+
+# Logging modules to check that the string format arguments are in logging
+# function parameter format.
+logging-modules = ["logging", "datalake_library.commons"]
+
+[tool.pylint.similarities]
+min-similarity-lines = 10

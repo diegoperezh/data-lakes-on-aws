@@ -1,0 +1,342 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Multi-environment CICD team repos resources in shared DevOps account
+
+Parameters:
+  pKMSKey:
+    Description: The KMS key used by CodeBuild and CodePipeline
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /SDLF/KMS/CICDKeyId
+  pCicdRepository:
+    Type: String
+    Default: sdlf-cicd
+  pFoundationsRepository:
+    Type: String
+    Default: sdlf-foundations
+  pTeamRepository:
+    Type: String
+    Default: sdlf-team
+  pPipelineRepository:
+    Type: String
+    Default: sdlf-pipeline
+  pDatasetRepository:
+    Type: String
+    Default: sdlf-dataset
+  pStageARepository:
+    Type: String
+    Default: sdlf-stageA
+  pStageLambdaRepository:
+    Type: String
+    Default: sdlf-stage-lambda
+  pStageBRepository:
+    Type: String
+    Default: sdlf-stageB
+  pStageGlueRepository:
+    Type: String
+    Default: sdlf-stage-glue
+  pDatalakeLibraryRepository:
+    Type: String
+    Default: sdlf-datalakeLibrary
+  pUtilsRepository:
+    Type: String
+    Default: sdlf-utils
+  pMainRepository:
+    Type: String
+    Default: sdlf-main
+  pMonitoringRepository:
+    Type: String
+    Default: sdlf-monitoring
+  pEnableMonitoring:
+    Description: Build sdlf-monitoring cloudformation module as part of domain pipelines
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /SDLF/Monitoring/Enabled
+
+Conditions:
+  EnableMonitoring: !Equals [!Ref pEnableMonitoring, true]
+
+Resources:
+  ######## CODECOMMIT #########
+  rCicdCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-cicd
+      RepositoryDescription: sdlf-cicd repository
+      RepositoryName: !Ref pCicdRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rFoundationsCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-foundations
+      RepositoryDescription: sdlf-foundations repository
+      RepositoryName: !Ref pFoundationsRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rTeamCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-team
+      RepositoryDescription: sdlf-team repository
+      RepositoryName: !Ref pTeamRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rPipelineCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-pipeline
+      RepositoryDescription: sdlf-pipeline repository
+      RepositoryName: !Ref pPipelineRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rDatasetCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-dataset
+      RepositoryDescription: sdlf-dataset repository
+      RepositoryName: !Ref pDatasetRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rStageACodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-stageA
+      RepositoryDescription: sdlf-stageA repository
+      RepositoryName: !Ref pStageARepository
+      KmsKeyId: !Ref pKMSKey
+
+  rStageLambdaCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-stage-lambda
+      RepositoryDescription: sdlf-stage-lambda repository
+      RepositoryName: !Ref pStageLambdaRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rStageBCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-stageB
+      RepositoryDescription: sdlf-stageB repository
+      RepositoryName: !Ref pStageBRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rStageGlueCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-stage-glue
+      RepositoryDescription: sdlf-stage-glue repository
+      RepositoryName: !Ref pStageGlueRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rDatalakeLibraryCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-datalakeLibrary
+      RepositoryDescription: sdlf-datalakeLibrary repository
+      RepositoryName: !Ref pDatalakeLibraryRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rMainCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ./README.md
+      RepositoryDescription: sdlf-main repository
+      RepositoryName: !Ref pMainRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rMonitoringCodeCommit:
+    Type: AWS::CodeCommit::Repository
+    Condition: EnableMonitoring
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3002
+    Properties:
+      Code:
+        BranchName: main
+        S3: ../sdlf-monitoring
+      RepositoryDescription: sdlf-monitoring repository
+      RepositoryName: !Ref pMonitoringRepository
+      KmsKeyId: !Ref pKMSKey
+
+  rCicdCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/CicdCodeCommit
+      Type: String
+      Value: !GetAtt rCicdCodeCommit.Name
+      Description: Name of the Cicd repository
+
+  rFoundationsCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/FoundationsCodeCommit
+      Type: String
+      Value: !GetAtt rFoundationsCodeCommit.Name
+      Description: Name of the Foundations repository
+
+  rTeamCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/TeamCodeCommit
+      Type: String
+      Value: !GetAtt rTeamCodeCommit.Name
+      Description: Name of the Team repository
+
+  rPipelineCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/PipelineCodeCommit
+      Type: String
+      Value: !GetAtt rPipelineCodeCommit.Name
+      Description: Name of the Pipeline repository
+
+  rDatasetCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/DatasetCodeCommit
+      Type: String
+      Value: !GetAtt rDatasetCodeCommit.Name
+      Description: Name of the Dataset repository
+
+  rStageACodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/StageACodeCommit
+      Type: String
+      Value: !GetAtt rStageACodeCommit.Name
+      Description: Name of the StageA repository
+
+  rStageLambdaCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/StageLambdaCodeCommit
+      Type: String
+      Value: !GetAtt rStageLambdaCodeCommit.Name
+      Description: Name of the Stage-Lambda repository
+
+  rStageBCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/StageBCodeCommit
+      Type: String
+      Value: !GetAtt rStageBCodeCommit.Name
+      Description: Name of the StageB repository
+
+  rStageGlueCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/StageGlueCodeCommit
+      Type: String
+      Value: !GetAtt rStageGlueCodeCommit.Name
+      Description: Name of the Stage-Glue repository
+
+  rDatalakeLibraryCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/DatalakeLibraryCodeCommit
+      Type: String
+      Value: !GetAtt rDatalakeLibraryCodeCommit.Name
+      Description: Name of the DatalakeLibrary repository
+
+  rUtilsCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/UtilsCodeCommit
+      Type: String
+      Value: !Ref pUtilsRepository
+      Description: Name of the Utils repository
+
+  rMainCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /SDLF/CodeCommit/MainCodeCommit
+      Type: String
+      Value: !GetAtt rMainCodeCommit.Name
+      Description: Name of the main repository
+
+  rMonitoringCodeCommitSsm:
+    Type: AWS::SSM::Parameter
+    Condition: EnableMonitoring
+    Properties:
+      Name: /SDLF/CodeCommit/MonitoringCodeCommit
+      Type: String
+      Value: !GetAtt rMonitoringCodeCommit.Name
+      Description: Name of the monitoring repository
