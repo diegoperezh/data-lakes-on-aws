@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Main pipeline
+
+Parameters:
+    pPipelineReference:
+        Type: String
+        Default: none
+
+Resources:
+    rMainA:
+        Type: awslabs::sdlf::stagelambda::MODULE
+        Properties:
+            pStageName: A
+            pPipeline: main
+            pDataset: legislators
+            pDeploymentInstance: maina
+            pTriggerType: event
+            pEventPattern: !Sub >-
+                {
+                "source": ["aws.s3"],
+                "detail-type": ["Object Created"],
+                "detail": {
+                    "bucket": {
+                        "name": ["{{resolve:ssm:/sdlf/storage/rRawBucket/dev}}"]
+                    },
+                    "object": {
+                        "key": [{ "prefix": "legislators/" }]
+                    }
+                }
+                }
+            pEnableTracing: false
+
+    rMainB:
+        Type: awslabs::sdlf::stageglue::MODULE
+        Properties:
+            pStageName: B
+            pPipeline: main
+            pDataset: legislators
+            pDeploymentInstance: mainb
+            pTriggerType: schedule
+            pEventPattern: !Sub >-
+                {
+                "source": ["aws.s3"],
+                "detail-type": ["Object Created"],
+                "detail": {
+                    "bucket": {
+                        "name": ["{{resolve:ssm:/sdlf/storage/rStageBucket/dev}}"]
+                    },
+                    "object": {
+                        "key": [{ "prefix": "legislators/main/A/" }]
+                    }
+                }
+                }
+            pSchedule: "cron(*/5 * * * ? *)"
+            pEnableTracing: false

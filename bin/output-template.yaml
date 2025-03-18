@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: datalake data domain, dev environment
+Parameters:
+  pPipelineReference:
+    Type: String
+    Default: none
+Resources:
+  rAnycompany:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.us-east-1.amazonaws.com/codeseeder-sdlf-cba-751196457174-javoak/sdlf/5ec5e2c986827cabb8162fe9a5faefd5.template
+      Parameters:
+        pPipelineReference:
+          Ref: pPipelineReference

@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: datalake data domain, dev environment
+
+Parameters:
+    pPipelineReference:
+        Type: String
+        Default: none
+
+Resources:
+    rAnycompany:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: ./foundations-datalake-dev.yaml
+            Parameters:
+                pPipelineReference: !Ref pPipelineReference

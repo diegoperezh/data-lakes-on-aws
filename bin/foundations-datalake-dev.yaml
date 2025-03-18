@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: SDLF Foundations in datalake domain, dev environment
+
+Parameters:
+    pPipelineReference:
+        Type: String
+        Default: none
+    pCustomerName:
+        Description: "The name of the customer"
+        Type: String
+        Default: "cba"
+    pCustomerName:
+        Description: "The name of the CICD role"
+        Type: String
+        Default: "diegophAdmin"
+
+Resources:
+    rAnycompany:
+        Type: awslabs::sdlf::foundations::MODULE
+        Properties:
+            pPipelineReference: !Ref pPipelineReference
+            pChildAccountId: !Ref AWS::AccountId
+            pOrg: !Ref pCustomerName
+            pDomain: datalake
+            pDeploymentInstance: dev
+            pCicdRole: !Ref pCustomerName

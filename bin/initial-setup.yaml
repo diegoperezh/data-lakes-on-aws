@@ -1,0 +1,344 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Automated deployment infrastructure
+
+Parameters:
+  ArtifactsBucket:
+    Description: "The name of the project artifacts S3 bucket"
+    Type: String
+    Default: "dl-demo-751196457174-us-east-1"
+
+  CustomerName:
+    Description: "The name of the customer"
+    Type: String
+    Default: "cba"
+
+Resources:
+  rCodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:CreateStack
+                  - cloudformation:CreateStackSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:DescribeStackEvents
+                  - cloudformation:DescribeStackResource
+                  - cloudformation:DescribeStackResources
+                  - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackSet
+                  - cloudformation:DescribeStackSetOperation
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:GetTemplate
+                  - cloudformation:GetTemplateSummary
+                  - cloudformation:TagResource
+                  - cloudformation:UpdateStack
+                  - cloudformation:UpdateStackSet
+                  - cloudformation:ValidateTemplate
+                  - cloudformation:UpdateTerminationProtection
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codebuild:BatchGetProjects
+                  - codebuild:CreateProject
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codecommit:ListRepositories
+                  - codecommit:GetRepository
+                  - codecommit:GetBranch
+                  - codecommit:GetCommit
+                  - codecommit:UploadArchive
+                  - codecommit:GetUploadArchiveStatus
+                  - codecommit:CancelUploadArchive
+                  - codecommit:CreateCommit
+                  - codecommit:CreateBranch
+                  - codecommit:CreateRepository
+                  - codecommit:GitPush
+                  - codecommit:TagResource
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - codepipeline:CreatePipeline
+                  - codepipeline:GetPipeline
+                  - codepipeline:GetPipelineState
+                  - codepipeline:TagResource
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - events:DescribeRule
+                  - events:PutRule
+                  - events:PutTargets
+                  - events:TagResource
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - iam:AttachRolePolicy
+                  - iam:CreateRole
+                  - iam:GetRole
+                  - iam:GetRolePolicy
+                  - iam:PassRole
+                  - iam:PutRolePolicy
+                  - iam:TagRole
+                  - iam:CreatePolicy
+                  - iam:GetPolicy
+                  - iam:ListPolicyVersions
+                  - iam:CreatePolicyVersion
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - lakeformation:GetDataLakeSettings
+                  - lakeformation:PutDataLakeSettings
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - kms:CreateAlias
+                  - kms:CreateGrant
+                  - kms:CreateKey
+                  - kms:Decrypt
+                  - kms:DescribeKey
+                  - kms:EnableKeyRotation
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                  - kms:ListAliases
+                  - kms:ListResourceTags
+                  - kms:PutKeyPolicy
+                  - kms:TagResource
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - lambda:AddPermission
+                  - lambda:CreateFunction
+                  - lambda:GetFunction
+                  - lambda:GetFunctionConfiguration
+                  - lambda:TagResource
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:PutRetentionPolicy
+                  - logs:TagResource
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - s3:CreateBucket
+                  - s3:GetBucketTagging
+                  - s3:PutBucketTagging
+                  - s3:GetEncryptionConfiguration
+                  - s3:PutEncryptionConfiguration
+                  - s3:GetBucketVersioning
+                  - s3:PutBucketVersioning
+                  - s3:GetLifecycleConfiguration
+                  - s3:PutLifecycleConfiguration
+                  - s3:GetBucketPublicAccessBlock
+                  - s3:PutBucketPublicAccessBlock
+                  - s3:GetBucketLogging
+                  - s3:PutBucketLogging
+                  - s3:PutBucketNotification
+                  - s3:GetBucketNotification
+                  - s3:GetBucketPolicy
+                  - s3:PutBucketPolicy
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                  - s3:ListBucket
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - ssm:AddTagsToResource
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:PutParameter
+                  - ssm:UpdateServiceSetting
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - sts:GetCallerIdentity
+
+  rLambdaTriggerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource:
+                  - !GetAtt rCodeBuildProject.Arn
+
+  rCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: MANIFEST_BUCKET
+            Type: PLAINTEXT
+            Value: !Ref ArtifactsBucket
+          - Name: CUSTOMER_NAME
+            Type: PLAINTEXT
+            Value: !Ref CustomerName
+      ServiceRole: !GetAtt rCodeBuildServiceRole.Arn
+      TimeoutInMinutes: 30
+      Source:
+        Type: NO_SOURCE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                  python: 3.12
+            build:
+              commands:
+                - echo Configuring AWS credentials
+                - echo "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"
+                - curl -qL -o aws_credentials.json http://169.254.170.2/$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI > aws_credentials.json
+                - |-
+                  aws configure set aws_access_key_id `jq -r '.AccessKeyId' aws_credentials.json`
+                  aws configure set aws_secret_access_key `jq -r '.SecretAccessKey' aws_credentials.json`
+                  aws configure set aws_session_token `jq -r '.Token' aws_credentials.json`
+                  aws configure set default.region "$AWS_REGION"
+                  AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+                - |-
+                  mkdir sdlf-workshop
+                  cd sdlf-workshop/
+
+                  python3 -m venv .venv
+                  source .venv/bin/activate
+                  pip3 install --upgrade pip setuptools
+                  pip3 install seed-farmer
+                - |-
+                  echo "project: sdlf" > seedfarmer.yaml
+                  seedfarmer version
+                - |-
+                  export PROJECT=sdlf
+                  export USER_ARN=$(aws sts get-caller-identity --query 'Arn' --output text | sed 's/:sts:/:iam:/g' | sed 's/:assumed-role/:role/g' | rev | cut -d'/' -f 2- | rev)
+
+                  seedfarmer bootstrap toolchain \
+                  --project "$PROJECT" \
+                  --trusted-principal "$USER_ARN" \
+                  --region "$AWS_REGION" \
+                  --as-target
+                - |-
+                  # Download manifest files from S3
+                  aws s3 cp s3://${MANIFEST_BUCKET}/sdlf-files/manifest-sdlf-base.yaml .
+                  aws s3 cp s3://${MANIFEST_BUCKET}/sdlf-files/manifest-sdlf-stages.yaml .
+                  aws s3 cp s3://${MANIFEST_BUCKET}/sdlf-files/manifest-sdlf.yaml .
+                  
+                  # Update account ID and region in the manifest
+                  sed -i -e "s/111111111111/$AWS_ACCOUNT_ID/g" -e "s/us-east-1/$AWS_REGION/g" manifest-sdlf.yaml
+                - seedfarmer apply manifest-sdlf.yaml
+          artifacts:
+            files:
+              - "*"
+              - "**/*"
+
+  rLambdaTrigger:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - arm64
+      Runtime: python3.12
+      Timeout: 120
+      MemorySize: 128
+      Handler: index.lambda_handler
+      Role: !GetAtt rLambdaTriggerRole.Arn
+      Environment:
+        Variables:
+          CODE_BUILD_PROJECT: !Ref rCodeBuildProject
+      Code:
+        ZipFile: |
+          import os
+          import json
+
+          import boto3
+          from botocore.exceptions import ClientError
+          from urllib.request import Request, urlopen
+
+          CODE_BUILD_PROJECT = os.getenv('CODE_BUILD_PROJECT')
+          cb = boto3.client('codebuild')
+
+          def send_response(e, c, rs, rd):
+              r = json.dumps({
+                  "Status": rs,
+                  "Reason": "CloudWatch Log Stream: " + c.log_stream_name,
+                  "PhysicalResourceId": e['LogicalResourceId'],
+                  "StackId": e['StackId'],
+                  "RequestId": e['RequestId'],
+                  "LogicalResourceId": e['LogicalResourceId'],
+                  "Data": rd
+              })
+              d = str.encode(r)
+              h = {
+                  'content-type': '',
+                  'content-length': str(len(d))
+              }
+              req = Request(e['ResponseURL'], data=d, method='PUT', headers=h)
+              r = urlopen(req)
+
+          def lambda_handler(event, context):
+              request_type = event['RequestType']
+              try:
+                  if request_type == 'Create':
+                      cb.start_build(projectName=CODE_BUILD_PROJECT)
+                      send_response(event, context, "SUCCESS", {
+                                    "Message": "Created"})
+
+                  else:
+                      send_response(event, context, "SUCCESS", {
+                                    "Message": "Function Not Applicable"})
+              except Exception as e:
+                  send_response(
+                      event,
+                      context,
+                      "FAILED",
+                      {
+                          "Message": "Exception"
+                      }
+                  )
+                  raise e
+
+  rCustomLambdaTrigger:
+    Type: Custom::LambdaTrigger
+    Properties:
+      ServiceToken: !GetAtt rLambdaTrigger.Arn
+
+Outputs:
+  oWorkshopProject:
+    Description: CodeBuild project deploying the initial setup section of sdlf.workshop.aws
+    Value: !Ref rCodeBuildProject
