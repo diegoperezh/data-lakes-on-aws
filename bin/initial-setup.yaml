@@ -1,17 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Automated deployment infrastructure
 
-Parameters:
-  ArtifactsBucket:
-    Description: "The name of the project artifacts S3 bucket"
-    Type: String
-    Default: "dl-demo-751196457174-us-east-1"
-
-  CustomerName:
-    Description: "The name of the customer"
-    Type: String
-    Default: "cba"
-
 Resources:
   rCodeBuildServiceRole:
     Type: AWS::IAM::Role
@@ -207,12 +196,9 @@ Resources:
         Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
         Type: LINUX_CONTAINER
         EnvironmentVariables:
-          - Name: MANIFEST_BUCKET
+          - Name: REPO
             Type: PLAINTEXT
-            Value: !Ref ArtifactsBucket
-          - Name: CUSTOMER_NAME
-            Type: PLAINTEXT
-            Value: !Ref CustomerName
+            Value: https://github.com/diegoperezh/data-lakes-on-aws.git
       ServiceRole: !GetAtt rCodeBuildServiceRole.Arn
       TimeoutInMinutes: 30
       Source:
@@ -255,11 +241,9 @@ Resources:
                   --region "$AWS_REGION" \
                   --as-target
                 - |-
-                  # Download manifest files from S3
                   curl -L -O https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/manifest-sdlf-base.yaml
                   curl -L -O https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/manifest-sdlf-stages.yaml
                   curl -L -O https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/manifest-sdlf.yaml
-                  # Update account ID and region in the manifest
                   sed -i -e "s/111111111111/$AWS_ACCOUNT_ID/g" -e "s/us-east-1/$AWS_REGION/g" manifest-sdlf.yaml
                 - seedfarmer apply manifest-sdlf.yaml
           artifacts:
