@@ -16,8 +16,8 @@ deploy:
             ARTIFACTS_BUCKET=$(aws cloudformation --endpoint-url "$CFN_ENDPOINT" describe-stacks --query "Stacks[?StackName=='aws-codeseeder-$SEEDFARMER_PROJECT_NAME'][].Outputs[?OutputKey=='Bucket'].OutputValue" --output text)
 
             deps=(
-              "https://raw.githubusercontent.com/aws/serverless-application-model/develop/bin/sam-translate.py"
-              "https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip"
+              "https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/sam-translate.py"
+              "https://github.com/diegoperezh/data-lakes-on-aws/releases/download/v1.0.0/aws-sam-cli-linux-x86_64.zip"
               "https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/sdlf/sdlf-cicd/template-generic-cfn-module.yaml"
             )
             for u in "${deps[@]}"; do

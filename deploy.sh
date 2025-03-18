@@ -324,7 +324,7 @@ devops_account () {
     done
 
     aws --region "$REGION" --profile "$DEVOPS_AWS_PROFILE" s3api put-object --bucket "$ARTIFACTS_BUCKET" --key sam-translate.py --body "$DIRNAME"/sdlf-cicd/sam-translate.py
-    curl -L -O --output-dir "$DIRNAME"/sdlf-cicd/ https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip
+    curl -L -O --output-dir "$DIRNAME"/sdlf-cicd/ https://github.com/diegoperezh/data-lakes-on-aws/releases/download/v1.0.0/aws-sam-cli-linux-x86_64.zip
     aws --region "$REGION" --profile "$DEVOPS_AWS_PROFILE" s3api put-object --bucket "$ARTIFACTS_BUCKET" --key aws-sam-cli-linux-x86_64.zip --body "$DIRNAME"/sdlf-cicd/aws-sam-cli-linux-x86_64.zip
     rm "$DIRNAME"/sdlf-cicd/aws-sam-cli-linux-x86_64.zip
 

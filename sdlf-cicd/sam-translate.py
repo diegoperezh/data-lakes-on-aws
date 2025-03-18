@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# SOURCE https://raw.githubusercontent.com/aws/serverless-application-model/develop/bin/sam-translate.py
+# SOURCE https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/sam-translate.py
 # LICENSE https://github.com/aws/serverless-application-model/blob/develop/LICENSE Apache License 2.0
 
 """Convert SAM templates to CloudFormation templates.
