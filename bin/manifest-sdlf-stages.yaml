@@ -1,11 +1,11 @@
 name: stage-lambda
-path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-stage-lambda/?ref=sdlf
+path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-stage-lambda/?ref=main
 parameters:
   - name: deployment-type
     value: cfn-module
 ---
 name: stage-glue
-path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-stage-glue/?ref=sdlf
+path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-stage-glue/?ref=main
 parameters:
   - name: deployment-type
     value: cfn-module

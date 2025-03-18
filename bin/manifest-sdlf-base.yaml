@@ -1,26 +1,26 @@
 name: foundations
-path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-foundations/?ref=sdlf
+path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-foundations/?ref=main
 parameters:
   - name: deployment-type
     value: cfn-module
 ---
 name: dataset
-path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-dataset/?ref=sdlf
+path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-dataset/?ref=main
 parameters:
   - name: deployment-type
     value: cfn-module
 ---
 name: datalakelibrary
-path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-datalakeLibrary/?ref=sdlf
+path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-datalakeLibrary/?ref=main
 ---
 name: pipeline
-path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-pipeline/?ref=sdlf
+path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-pipeline/?ref=main
 parameters:
   - name: deployment-type
     value: cfn-module
 ---
 name: team
-path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-team/?ref=sdlf
+path: git::https://github.com/diegoperezh/data-lakes-on-aws.git//sdlf-team/?ref=main
 parameters:
   - name: deployment-type
     value: cfn-module
