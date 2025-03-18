@@ -28,9 +28,6 @@ Click on the below button to launch a stack in CloudFormation. Accept the defaul
 
 [Launch Stack from S3](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=sdlf-workshop-deployment&templateURL=https://dl-demo-751196457174-us-east-1.s3.us-east-1.amazonaws.com/sdlf-files/initial-setup.yaml)
 
-[Launch Stack from GitHub](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=sdlf-workshop-deployment&templateURL=https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/initial-setup.yaml)
-
-
 CodeBuild llama estos archivos:
 
 - github/aws-solutions-library-samples/data-lakes-on-aws/sdlf-pipeline/deployspec.yaml

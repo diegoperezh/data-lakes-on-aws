@@ -256,10 +256,9 @@ Resources:
                   --as-target
                 - |-
                   # Download manifest files from S3
-                  aws s3 cp s3://${MANIFEST_BUCKET}/sdlf-files/manifest-sdlf-base.yaml .
-                  aws s3 cp s3://${MANIFEST_BUCKET}/sdlf-files/manifest-sdlf-stages.yaml .
-                  aws s3 cp s3://${MANIFEST_BUCKET}/sdlf-files/manifest-sdlf.yaml .
-                  
+                  curl -L -O https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/manifest-sdlf-base.yaml
+                  curl -L -O https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/manifest-sdlf-stages.yaml
+                  curl -L -O https://raw.githubusercontent.com/diegoperezh/data-lakes-on-aws/refs/heads/main/bin/manifest-sdlf.yaml
                   # Update account ID and region in the manifest
                   sed -i -e "s/111111111111/$AWS_ACCOUNT_ID/g" -e "s/us-east-1/$AWS_REGION/g" manifest-sdlf.yaml
                 - seedfarmer apply manifest-sdlf.yaml
