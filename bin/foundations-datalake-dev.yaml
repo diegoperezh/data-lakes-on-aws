@@ -9,7 +9,7 @@ Parameters:
         Description: "The name of the customer"
         Type: String
         Default: "cba"
-    pCustomerName:
+    pCicdRole:
         Description: "The name of the CICD role"
         Type: String
         Default: "diegophAdmin"
@@ -23,4 +23,4 @@ Resources:
             pOrg: !Ref pCustomerName
             pDomain: datalake
             pDeploymentInstance: dev
-            pCicdRole: !Ref pCustomerName
+            pCicdRole: !Ref pCicdRole

@@ -232,9 +232,14 @@ Resources:
 
 
 ```bash
-ARTIFACTS_BUCKET=$(aws cloudformation describe-stacks --query "Stacks[?StackName=='aws-codeseeder-sdlf-cba'][].Outputs[?OutputKey=='Bucket'].OutputValue" --output text)
+ARTIFACTS_BUCKET=$(aws cloudformation describe-stacks --query "Stacks[?StackName=='aws-codeseeder-sdlf'][].Outputs[?OutputKey=='Bucket'].OutputValue" --output text)
 aws cloudformation package --template-file ./datasets.yaml --s3-bucket "$ARTIFACTS_BUCKET" --s3-prefix sdlf --output-template-file output-datasets.yaml
 aws cloudformation deploy --template-file output-datasets.yaml --stack-name sdlf-datalake-datasets-dev --capabilities "CAPABILITY_NAMED_IAM" "CAPABILITY_AUTO_EXPAND"
+
+
+ARTIFACTS_BUCKET=$(aws cloudformation describe-stacks --query "Stacks[?StackName=='aws-codeseeder-sdlf'][].Outputs[?OutputKey=='Bucket'].OutputValue" --output text)
+aws cloudformation package --template-file ./datadomain-datalake-dev.yaml --s3-bucket "$ARTIFACTS_BUCKET" --s3-prefix sdlf --output-template-file output-template.yaml
+aws cloudformation deploy --template-file output-template.yaml --stack-name sdlf-domain-datalake-dev --capabilities "CAPABILITY_NAMED_IAM" "CAPABILITY_AUTO_EXPAND"
 ```
 
 - Stack creado: `sdlf-datalake-datasets-dev`
