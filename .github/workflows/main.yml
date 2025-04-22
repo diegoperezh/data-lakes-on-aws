@@ -1,7 +1,7 @@
 name: Performance Testing
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Runs every 5 minutes
+    - cron: '*/5 * * * *'
   push:
     branches: [ main ]
 
@@ -9,28 +9,40 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     steps:
-    # Updated checkout action to v4
     - uses: actions/checkout@v4
-    
-    # Add timestamp for logging
-    - name: Get timestamp
-      id: timestamp
-      run: echo "time=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
 
-    # Run Lighthouse
-    - name: Lighthouse Check
-      uses: treosh/lighthouse-ci-action@v10
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        urls: |
-          https://www.test.diegoph.people.aws.dev
-        uploadArtifacts: true
-        temporaryPublicStorage: true
+        node-version: '20'
 
-    # Updated upload-artifact to v4
+    - name: Generate timestamp
+      id: timestamp
+      run: echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+
+    - name: Install Lighthouse
+      run: |
+        npm install -g lighthouse puppeteer
+
+    - name: Run Lighthouse
+      run: |
+        lighthouse https://www.test.diegoph.people.aws.dev \
+          --chrome-flags="--headless --no-sandbox --disable-gpu" \
+          --output html --output json \
+          --output-path ./lighthouse-report
+
     - name: Upload results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: lighthouse-results-${{ steps.timestamp.outputs.time }}
-        path: .lighthouseci
+        name: lighthouse-report-${{ steps.timestamp.outputs.timestamp }}
+        path: |
+          ./lighthouse-report.html
+          ./lighthouse-report.json
         retention-days: 7
+
+    - name: Log completion
+      if: always()
+      run: |
+        echo "Test completed at $(date)"
+        ls -la ./
