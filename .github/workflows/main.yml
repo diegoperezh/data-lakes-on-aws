@@ -24,11 +24,10 @@ jobs:
       run: |
         npm install -g lighthouse puppeteer
 
-    # Create directory for reports
     - name: Create reports directory
       run: mkdir -p ./lighthouse-reports
 
-    # Run Lighthouse with explicit output paths
+    # Updated file paths in Lighthouse command
     - name: Run Lighthouse
       run: |
         lighthouse https://www.test.diegoph.people.aws.dev \
@@ -36,28 +35,28 @@ jobs:
           --output html --output json \
           --output-path ./lighthouse-reports/report
 
-    # Verify files exist and list directory contents
+    # Debug step to verify files
     - name: List generated files
       run: |
         echo "Contents of lighthouse-reports directory:"
         ls -la ./lighthouse-reports/
 
-    # Upload with correct paths
+    # Updated file paths in upload step
     - name: Upload results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: lighthouse-report-${{ steps.timestamp.outputs.timestamp }}
         path: |
-          ./lighthouse-reports/report.html
-          ./lighthouse-reports/report.json
+          ./lighthouse-reports/report.report.html
+          ./lighthouse-reports/report.report.json
         retention-days: 7
 
-    # Add error handling and logging
+    # Updated file paths in verification step
     - name: Check for results
       if: always()
       run: |
-        if [ -f "./lighthouse-reports/report.html" ] && [ -f "./lighthouse-reports/report.json" ]; then
+        if [ -f "./lighthouse-reports/report.report.html" ] && [ -f "./lighthouse-reports/report.report.json" ]; then
           echo "Reports generated successfully"
         else
           echo "Warning: Some reports are missing"
