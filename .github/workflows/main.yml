@@ -24,25 +24,42 @@ jobs:
       run: |
         npm install -g lighthouse puppeteer
 
+    # Create directory for reports
+    - name: Create reports directory
+      run: mkdir -p ./lighthouse-reports
+
+    # Run Lighthouse with explicit output paths
     - name: Run Lighthouse
       run: |
         lighthouse https://www.test.diegoph.people.aws.dev \
           --chrome-flags="--headless --no-sandbox --disable-gpu" \
           --output html --output json \
-          --output-path ./lighthouse-report
+          --output-path ./lighthouse-reports/report
 
+    # Verify files exist and list directory contents
+    - name: List generated files
+      run: |
+        echo "Contents of lighthouse-reports directory:"
+        ls -la ./lighthouse-reports/
+
+    # Upload with correct paths
     - name: Upload results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: lighthouse-report-${{ steps.timestamp.outputs.timestamp }}
         path: |
-          ./lighthouse-report.html
-          ./lighthouse-report.json
+          ./lighthouse-reports/report.html
+          ./lighthouse-reports/report.json
         retention-days: 7
 
-    - name: Log completion
+    # Add error handling and logging
+    - name: Check for results
       if: always()
       run: |
-        echo "Test completed at $(date)"
-        ls -la ./
+        if [ -f "./lighthouse-reports/report.html" ] && [ -f "./lighthouse-reports/report.json" ]; then
+          echo "Reports generated successfully"
+        else
+          echo "Warning: Some reports are missing"
+          exit 1
+        fi
