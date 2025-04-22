@@ -9,30 +9,28 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    # Updated checkout action to v4
+    - uses: actions/checkout@v4
     
     # Add timestamp for logging
     - name: Get timestamp
       id: timestamp
-      run: echo "::set-output name=time::$(date +'%Y-%m-%d %H:%M:%S')"
+      run: echo "time=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
 
     # Run Lighthouse
     - name: Lighthouse Check
-      uses: foo-software/lighthouse-check-action@master
+      uses: treosh/lighthouse-ci-action@v10
       with:
-        urls: 'https://yourwebsite.com'
-        outputDirectory: ./lighthouse-results
-        
-    # Optional: Save results to artifact
+        urls: |
+          https://www.test.diegoph.people.aws.dev
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+
+    # Updated upload-artifact to v4
     - name: Upload results
-      uses: actions/upload-artifact@v2
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
         name: lighthouse-results-${{ steps.timestamp.outputs.time }}
-        path: ./lighthouse-results
-
-    # Optional: Add error handling
-    - name: Check for failures
-      if: ${{ failure() }}
-      run: |
-        echo "Test failed at ${{ steps.timestamp.outputs.time }}"
-        # Add notification logic here
+        path: .lighthouseci
+        retention-days: 7
