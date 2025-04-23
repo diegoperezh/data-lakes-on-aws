@@ -1,9 +1,9 @@
 name: Performance Testing
-on:
-  schedule:
-    - cron: '*/5 * * * *'
-  push:
-    branches: [ main ]
+# on:
+#  schedule:
+#    - cron: '*/5 * * * *'
+#  push:
+#    branches: [ main ]
 
 jobs:
   lighthouse:
